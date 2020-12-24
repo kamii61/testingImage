@@ -13,23 +13,28 @@ exports.index = function(req, res){
  
 	  	 if(file.mimetype == "image/jpeg" ||file.mimetype == "image/png"||file.mimetype == "image/gif" ){
                                  
-              file.mv('public/images/upload_images/'+file.name, async(error)=>{
+              file.mv('public/images/upload_images/'+file.name, function(error){
                
-                    try {
-                     var sql = await pool.query("INSERT INTO users_image(first_name,last_name,mob_no,user_name, password ,image) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *"
+               if (error) {
+                  console.error(message.error);
+                  }   
+                     var sql = pool.query("INSERT INTO users_image(first_name,last_name,mob_no,user_name, password ,image) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *"
                      ,[first_name,last_name,mob_no,user_name, password 
                         ,img_name],function(err,results,next){
-
-                          res.redirect("/profile/"+results.rows[0].id)
-                                 next
-                        })
+                           
+                              
+                              res.redirect("/profile/"+results.rows[0].id)
+                                     next
+                          
+                            
+                           
+                        
+                        });
               
                    
                      
                      
-                    } catch (error) {
-                    console.error(message.error);
-                    }         
+                         
 	             
                   });
           } else {
@@ -51,7 +56,7 @@ exports.profile = async(req, res)=>{
          console.log(results.rows[0].first_name);
          if(results.length <= 0)
          message = "Profile not found!";
-         
+      
           res.render('profile.ejs',{data:results, message: message})
 
        });
